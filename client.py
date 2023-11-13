@@ -33,17 +33,20 @@ class Client:
         print(self.users_list)
 
     def groups(self):
-        # TODO: deve listar somente grupos em que usuário particpa
-        print(self.groups_list)
+        for i in range(len(self.groups_list)):
+            if f'{self.id}' in self.groups_list[i]:
+                print(f'{i+1} - {self.groups_list[i]}')
+            
 
-    # TODO: função para assinar tópico da conversa e definir grupo como 'current_chat
+    def select_group(self, key):
+        self.client.subscribe(f'{key}_GROUP_CHAT')
+        self.current_chat = f'{key}_GROUP_CHAT'
 
     def chats(self):
         for i in range(len(self.chats_list)):
             print(f'{i+1} - {self.chats_list[i]}')
 
     def new_group(self, name, members):
-        # TODO: criar tópico do grupo
         self.client.publish("GROUPS", payload=f'leader:{self.id};name:{name};members:{members}', qos=2, retain=True)
 
     def request_chat(self, id):
@@ -51,12 +54,21 @@ class Client:
 
     def on_message(self, client, userdata, msg):
         if msg.topic == "USERS":
-            # TODO: se user já existir apenas atualizar status
-            self.users_list.append(self.get_params(msg.payload.decode()))
+            params = self.get_params(msg.payload.decode())
+            add_new = True
+            for user in self.users_list:
+                if params[0] in user:
+                    user[1] = params[1]
+                    add_new = False
+                    break
+            if add_new:
+                self.users_list.append(self.get_params(msg.payload.decode()))
 
         elif msg.topic == "GROUPS":
-            # TODO: se grupo já existir não adcionar
-            self.groups_list.append(msg.payload.decode())
+            if msg.payload.decode() not in self.groups_list:
+                self.groups_list.append(msg.payload.decode())
+            else:
+                print('Grupo já existe!')
 
         elif msg.topic == f"{self.id}_Control":
             self.start_conversation(msg.payload.decode())
@@ -106,8 +118,7 @@ class Client:
     def select_chat(self, key):
         self.current_chat = self.chats_list[key]
         if self.old_received_messages.get(self.current_chat) is not None:
-            # TODO: Tratar impressão de mensagens antigas
-            print(self.old_received_messages[self.current_chat])
+            print(f'Mensagens anteriories:\n{self.old_received_messages[self.current_chat]}')
 
     def print_message(self, message):
         params = self.get_params(message)

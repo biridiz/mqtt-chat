@@ -15,15 +15,44 @@ def menu(client):
     opt = int(input())
     
     if opt == 1:
+      os.system("clear")
       client.users()
+
+      select = input()
+
+      if select == "sair":
+        os.system("clear")
+        menu(client)
 
     elif opt == 2:
       name = input('Insira o nome do grupo: ')
       members = input("Insira o id dos integrantes: ")
       client.new_group(name, members)
 
+      os.system("clear")
+      menu(client)
+
     elif opt == 3:
+      os.system("clear")
       client.groups()
+
+      select = input()
+
+      if select == "sair":
+        os.system("clear")
+        menu(client)
+
+      client.select_group(int(select)-1)
+      EXIT_CONVERSATION = False
+
+      print("Digite algo")
+      while not EXIT_CONVERSATION:
+        message = input()
+        if message == "sair":
+          os.system("clear")
+          EXIT_CONVERSATION = True
+        else:
+          client.send_message(message)
 
     elif opt == 4:
       os.system("clear")
@@ -46,12 +75,13 @@ def menu(client):
       client.chats()
 
       select = input()
-      client.select_chat(int(select)-1)
-      EXIT_CONVERSATION = False
 
       if select == "sair":
         os.system("clear")
         menu(client)
+
+      client.select_chat(int(select)-1)
+      EXIT_CONVERSATION = False
 
       print("Digite algo")
       while not EXIT_CONVERSATION:
@@ -64,8 +94,8 @@ def menu(client):
 
     elif opt == 6:
       client.disconnect()
-      time.sleep(3)
       EXIT = True
+      time.sleep(3)
 
     else:
       print("Opção inválida!")
