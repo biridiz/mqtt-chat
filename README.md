@@ -1,6 +1,6 @@
 # Setup
 
-```pip install paho-mqtt```s
+```pip install paho-mqtt```
 
 
 # Run
